@@ -43,10 +43,6 @@ terraform {
       version = "0.7.2"
     }
 
-    # grafana = {
-    #   source  = "grafana/grafana"
-    #   version = "1.22.0"
-    # }
   }
 }
 

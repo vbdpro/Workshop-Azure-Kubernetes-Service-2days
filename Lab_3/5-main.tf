@@ -23,7 +23,6 @@ resource "azurerm_resource_group" "Terra_aks_rg" {
 #     \  /  | | |  | |_| |_| | (_| | |  | |\  |  __/ |_ \ V  V / (_) | |  |   <   | (_| | | | | (_| |   ____) | |_| | |_) | | | |  __/ |_\__ \
 #      \/   |_|_|   \__|\__,_|\__,_|_|  |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\   \__,_|_| |_|\__,_|  |_____/ \__,_|_.__/|_| |_|\___|\__|___/                                                                                                                                     
 
-
 resource "azurerm_virtual_network" "Terra_aks_vnet" {
   name                = var.aks_vnet_name
   resource_group_name = azurerm_resource_group.Terra_aks_rg.name
@@ -41,7 +40,7 @@ resource "azurerm_role_assignment" "Terra-aks-vnet-role" {
 }
 
 # Defining subnets Virtual Network
-
+# cf. https://docs.microsoft.com/en-us/azure/aks/configure-azure-cni#configure-subnets
 resource "azurerm_subnet" "Terra_aks_subnet" {
   name                 = "aks_subnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -58,7 +57,8 @@ resource "azurerm_role_assignment" "Terra-aks-subnet-role" {
   principal_id         = azurerm_kubernetes_cluster.Terra_aks.kubelet_identity.0.object_id
 }
 
-
+# Subnet for Azure Bastion
+# cf. https://docs.microsoft.com/en-us/azure/bastion/bastion-overview
 resource "azurerm_subnet" "Terra_aks_bastion_subnet" {
   name                 = "AzureBastionSubnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -66,6 +66,8 @@ resource "azurerm_subnet" "Terra_aks_bastion_subnet" {
   address_prefixes     = ["10.254.0.0/16"]
 }
 
+# Subnet for Azure Firewall
+# cf. https://docs.microsoft.com/en-us/azure/firewall/tutorial-firewall-deploy-portal
 resource "azurerm_subnet" "Terra_aks_firewall_subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -73,9 +75,8 @@ resource "azurerm_subnet" "Terra_aks_firewall_subnet" {
   address_prefixes     = ["10.253.0.0/16"]
 }
 
-###################
-# AppGateway Subnet
-
+# Subnet for Application Gateway
+# cf. https://docs.microsoft.com/en-us/azure/application-gateway/overview
 resource "azurerm_subnet" "Terra_aks_appgw_subnet" {
   name                 = "appgwsubnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -126,26 +127,6 @@ resource "azurerm_log_analytics_workspace" "Terra-LogsWorkspace" {
 #     product   = "OMSGallery/Containers"
 #   }
 # }
-
-
-# Output post deployment
-# output "AzureLogAnalyticsWorkspaceID" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.id
-# }
-
-# output "AzureLogAnalyticsWorkspaceCustomerID" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.workspace_id
-# }
-
-# output "AzureLogAnalyticsWorkspaceprimarySharedKey" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.primary_shared_key
-# }
-
-# output "AzureLogAnalyticsWorkspaceSecondarySharedKey" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.secondary_shared_key
-# }
-
-
 
 
 
@@ -311,7 +292,8 @@ resource "azurerm_kubernetes_cluster" "Terra_aks" {
   }
 }
 
-
+# AKS Node Pool Linux
+#
 # AKS Agent node-pool cf. https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster_node_pool.html
 # resource "azurerm_kubernetes_cluster_node_pool" "Terra-AKS-NodePools" {
 #   kubernetes_cluster_id = azurerm_kubernetes_cluster.Terra_aks.id

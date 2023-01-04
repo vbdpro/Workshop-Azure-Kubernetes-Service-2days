@@ -24,3 +24,21 @@
 # output "URL-to-connect-Grafana-through-AppGW-Ingress" {
 #   value = "http://${var.a-record-dns-ingress}.${var.dns-zone-name-for-ingress}   no https. i know: it is just for test purpose !"
 # }
+
+# Output post deployment
+# output "AzureLogAnalyticsWorkspaceID" {
+#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.id
+# }
+
+# output "AzureLogAnalyticsWorkspaceCustomerID" {
+#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.workspace_id
+# }
+
+# output "AzureLogAnalyticsWorkspaceprimarySharedKey" {
+#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.primary_shared_key
+# }
+
+# output "AzureLogAnalyticsWorkspaceSecondarySharedKey" {
+#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.secondary_shared_key
+# }
+
