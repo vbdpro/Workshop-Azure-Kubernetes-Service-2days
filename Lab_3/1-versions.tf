@@ -8,13 +8,8 @@
 #                                                                                                   |_|                                         
 
 terraform {
-  required_version = ">= 1.3.2"
-  backend "azurerm" {
-    resource_group_name  = "RG-AdminZone" # mettre ici le nom du resource group de vos ressource
-    storage_account_name = "labmons" # /!\ mettre le nom du compte de stockage créer dans le lab 1
-    container_name       = "tfstate"
-    key                  = "aks.terraform.tfstate"
-  }
+  required_version = ">= 1.3.6"
+
   required_providers {
     azurerm = {
       # The "hashicorp" namespace is the new home for the HashiCorp-maintained
@@ -27,7 +22,7 @@ terraform {
       # more info : https://github.com/terraform-providers/terraform-provider-azurerm
       # Check Changelog : https://github.com/terraform-providers/terraform-provider-azurerm/blob/master/CHANGELOG.md
       source  = "hashicorp/azurerm"
-      version = ">= 3.1.0"
+      version = ">= 3.3.5"
     }
 
     # https://github.com/hashicorp/terraform-provider-kubernetes
@@ -39,7 +34,7 @@ terraform {
     # https://github.com/hashicorp/terraform-provider-helm
     helm = {
       source  = "hashicorp/helm"
-      version = "2.5.0"
+      version = "= 2.5.0"
     }
 
     # https://github.com/hashicorp/terraform-provider-time
@@ -48,10 +43,6 @@ terraform {
       version = "0.7.2"
     }
 
-    # grafana = {
-    #   source  = "grafana/grafana"
-    #   version = "1.22.0"
-    # }
   }
 }
 
@@ -92,14 +83,6 @@ provider "helm" {
 provider "time" {
   # Configuration options
 }
-
-# Configuration provider Grafana
-# cf. https://registry.terraform.io/providers/grafana/grafana/latest/docs
-# provider "grafana" {
-#   # url  = "http://grafana.example.com/"
-#   url  = "http://${var.a-record-dns-ingress}.${var.dns-zone-name-for-ingress}"
-#   auth = "${var.grafana_admin_username}:${data.azurerm_key_vault_secret.grafana_admin_password.value}"
-# }
 
 
 # A remote backend must be used for production (especially if deployments are done through CI/CD pipelines) 

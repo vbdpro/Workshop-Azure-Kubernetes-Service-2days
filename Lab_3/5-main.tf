@@ -23,7 +23,6 @@ resource "azurerm_resource_group" "Terra_aks_rg" {
 #     \  /  | | |  | |_| |_| | (_| | |  | |\  |  __/ |_ \ V  V / (_) | |  |   <   | (_| | | | | (_| |   ____) | |_| | |_) | | | |  __/ |_\__ \
 #      \/   |_|_|   \__|\__,_|\__,_|_|  |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\   \__,_|_| |_|\__,_|  |_____/ \__,_|_.__/|_| |_|\___|\__|___/                                                                                                                                     
 
-
 resource "azurerm_virtual_network" "Terra_aks_vnet" {
   name                = var.aks_vnet_name
   resource_group_name = azurerm_resource_group.Terra_aks_rg.name
@@ -41,7 +40,7 @@ resource "azurerm_role_assignment" "Terra-aks-vnet-role" {
 }
 
 # Defining subnets Virtual Network
-
+# cf. https://docs.microsoft.com/en-us/azure/aks/configure-azure-cni#configure-subnets
 resource "azurerm_subnet" "Terra_aks_subnet" {
   name                 = "aks_subnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -58,7 +57,8 @@ resource "azurerm_role_assignment" "Terra-aks-subnet-role" {
   principal_id         = azurerm_kubernetes_cluster.Terra_aks.kubelet_identity.0.object_id
 }
 
-
+# Subnet for Azure Bastion
+# cf. https://docs.microsoft.com/en-us/azure/bastion/bastion-overview
 resource "azurerm_subnet" "Terra_aks_bastion_subnet" {
   name                 = "AzureBastionSubnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -66,6 +66,8 @@ resource "azurerm_subnet" "Terra_aks_bastion_subnet" {
   address_prefixes     = ["10.254.0.0/16"]
 }
 
+# Subnet for Azure Firewall
+# cf. https://docs.microsoft.com/en-us/azure/firewall/tutorial-firewall-deploy-portal
 resource "azurerm_subnet" "Terra_aks_firewall_subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -73,38 +75,8 @@ resource "azurerm_subnet" "Terra_aks_firewall_subnet" {
   address_prefixes     = ["10.253.0.0/16"]
 }
 
-resource "azurerm_subnet" "Terra_aks_aci_subnet" {
-  name                 = "virtual-node-aci"
-  resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
-  virtual_network_name = azurerm_virtual_network.Terra_aks_vnet.name
-  address_prefixes     = ["10.241.0.0/16"]
-  delegation {
-    name = "aciDelegation"
-    service_delegation {
-      name    = "Microsoft.ContainerInstance/containerGroups"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
-
-}
-
-# Role Assignment to Grant AKS cluster access to join ACI subnet
-resource "azurerm_role_assignment" "Terra-aks-aci_subnet" {
-  scope                = azurerm_subnet.Terra_aks_aci_subnet.id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_kubernetes_cluster.Terra_aks.kubelet_identity.0.object_id
-}
-
-# Role Assignment to Grant ACI-connector Pod permission Contributor on ACI Subnet
-# resource "azurerm_role_assignment" "Terra-aci-aci_subnet" {
-#   scope                = azurerm_subnet.Terra_aks_aci_subnet.id
-#   role_definition_name = "Contributor"
-#   principal_id         = azurerm_kubernetes_cluster.Terra_aks.aciConnectorLinux
-# }
-
-###################
-# AppGateway Subnet
-
+# Subnet for Application Gateway
+# cf. https://docs.microsoft.com/en-us/azure/application-gateway/overview
 resource "azurerm_subnet" "Terra_aks_appgw_subnet" {
   name                 = "appgwsubnet"
   resource_group_name  = azurerm_resource_group.Terra_aks_rg.name
@@ -157,26 +129,6 @@ resource "azurerm_log_analytics_workspace" "Terra-LogsWorkspace" {
 # }
 
 
-# Output post deployment
-# output "AzureLogAnalyticsWorkspaceID" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.id
-# }
-
-# output "AzureLogAnalyticsWorkspaceCustomerID" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.workspace_id
-# }
-
-# output "AzureLogAnalyticsWorkspaceprimarySharedKey" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.primary_shared_key
-# }
-
-# output "AzureLogAnalyticsWorkspaceSecondarySharedKey" {
-#   value = azurerm_log_analytics_workspace.Terra-OMSWorkspace-SpecialK.secondary_shared_key
-# }
-
-
-
-
 
 #            _  __ _____    _____ _           _            
 #      /\   | |/ // ____|  / ____| |         | |           
@@ -210,7 +162,7 @@ resource "azurerm_kubernetes_cluster" "Terra_aks" {
   # Enable HTTP Application routing (Ingress for Test and Dev only)
   http_application_routing_enabled = "false"
 
-  depends_on = [azurerm_log_analytics_workspace.Terra-LogsWorkspace]
+  # depends_on = [azurerm_log_analytics_workspace.Terra-LogsWorkspace]
 
   default_node_pool {
     name = var.defaultpool-name
@@ -231,18 +183,20 @@ resource "azurerm_kubernetes_cluster" "Terra_aks" {
     }
   }
 
-  linux_profile {
-    admin_username = var.admin_username
-    ssh_key {
-      key_data = data.azurerm_key_vault_secret.ssh_public_key.value
-    }
-  }
+  # linux_profile
+  # cf.  https://docs.microsoft.com/en-us/azure/aks/ssh
+  # linux_profile {
+  #   admin_username = var.admin_username
+  #   ssh_key {
+  #     key_data = data.azurerm_key_vault_secret.ssh_public_key.value
+  #   }
+  # }
 
-  windows_profile {
-    admin_username = var.windows_admin_username
-    # Windows admin password is stored as a secret in an Azure Keyvault. Check datasource.tf for more information
-    admin_password = data.azurerm_key_vault_secret.windows_admin_password.value
-  }
+  # windows_profile {
+  #   admin_username = var.windows_admin_username
+  #   # Windows admin password is stored as a secret in an Azure Keyvault. Check datasource.tf for more information
+  #   admin_password = data.azurerm_key_vault_secret.windows_admin_password.value
+  # }
 
   network_profile {
     network_plugin = "azure" # Can be kubenet (Basic Network) or azure (=Advanced Network)
@@ -338,8 +292,7 @@ resource "azurerm_kubernetes_cluster" "Terra_aks" {
   }
 }
 
-
-
+# AKS Node Pool Linux
 # AKS Agent node-pool cf. https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster_node_pool.html
 # resource "azurerm_kubernetes_cluster_node_pool" "Terra-AKS-NodePools" {
 #   kubernetes_cluster_id = azurerm_kubernetes_cluster.Terra_aks.id
@@ -373,30 +326,30 @@ resource "azurerm_kubernetes_cluster" "Terra_aks" {
 #                                                                                   |_|                 
 
 # AKS Agent node-pool cf. https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster_node_pool.html
-resource "azurerm_kubernetes_cluster_node_pool" "Terra-AKS-NodePools" {
-  kubernetes_cluster_id = azurerm_kubernetes_cluster.Terra_aks.id
-  name                  = var.windowspool-name
-  depends_on            = [azurerm_kubernetes_cluster.Terra_aks]
-  node_count            = var.windowspool-nodecount     # static number or initial number of nodes. Must be between 1 to 100
-  enable_auto_scaling   = var.winpool-enableautoscaling # use this parameter if you want an AKS Cluster with Node autoscale. Need also min_count and max_count
-  min_count             = var.winpool-mincount          # minimum number of nodes with AKS Autoscaler
-  max_count             = var.winpool-maxcount          # maximum number of nodes with AKS Autoscaler
-  vm_size               = var.windowspool-vmsize
-  zones                 = var.winpool-availabilityzones # example : [1, 2, 3]
-  os_type               = var.windowspool-ostype        # Possible values :linux, windows
-  os_disk_size_gb       = var.windowspool-osdisksizegb
-  # max_pods              = var.winpool-maxpods         # between 30 and 250. BUT must 30 max for Windows Node
-  vnet_subnet_id = azurerm_subnet.Terra_aks_subnet.id
-  node_taints    = var.winpool-nodetaints # cf. https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-  mode           = "User"
-  # priority = Regular or Spot
-  priority        = "Spot"   # not compatible with cluster autoupgrade
-  eviction_policy = "Delete" # possible value : Delete, Deallocate
-  spot_max_price  = "-1"
-  # node_labels = "kubernetes.azure.com/scalesetpriority:spot"
-  # node_taints = "kubernetes.azure.com/scalesetpriority=spot:NoSchedule"
-  tags = {
-    Environment = "Lab"
-  }
-}
+# resource "azurerm_kubernetes_cluster_node_pool" "Terra-AKS-NodePools" {
+#   kubernetes_cluster_id = azurerm_kubernetes_cluster.Terra_aks.id
+#   name                  = var.windowspool-name
+#   depends_on            = [azurerm_kubernetes_cluster.Terra_aks]
+#   node_count            = var.windowspool-nodecount     # static number or initial number of nodes. Must be between 1 to 100
+#   enable_auto_scaling   = var.winpool-enableautoscaling # use this parameter if you want an AKS Cluster with Node autoscale. Need also min_count and max_count
+#   min_count             = var.winpool-mincount          # minimum number of nodes with AKS Autoscaler
+#   max_count             = var.winpool-maxcount          # maximum number of nodes with AKS Autoscaler
+#   vm_size               = var.windowspool-vmsize
+#   zones                 = var.winpool-availabilityzones # example : [1, 2, 3]
+#   os_type               = var.windowspool-ostype        # Possible values :linux, windows
+#   os_disk_size_gb       = var.windowspool-osdisksizegb
+#   # max_pods              = var.winpool-maxpods         # between 30 and 250. BUT must 30 max for Windows Node
+#   vnet_subnet_id = azurerm_subnet.Terra_aks_subnet.id
+#   node_taints    = var.winpool-nodetaints # cf. https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+#   mode           = "User"
+#   # priority = Regular or Spot
+#   priority        = "Spot"   # not compatible with cluster autoupgrade
+#   eviction_policy = "Delete" # possible value : Delete, Deallocate
+#   spot_max_price  = "-1"
+#   # node_labels = "kubernetes.azure.com/scalesetpriority:spot"
+#   # node_taints = "kubernetes.azure.com/scalesetpriority=spot:NoSchedule"
+#   tags = {
+#     Environment = "Lab"
+#   }
+# }
 

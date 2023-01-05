@@ -5,21 +5,21 @@ variable "resource_group" {
 }
 
 #KeyVault Resource Group and KeyVaultName
-variable "keyvault_rg" {
-  type = string
-  default = "RG-AdminZone"
-}
-variable "keyvault_name" {
-  type = string
-  default = "keyvaultmons"
-}
+# variable "keyvault_rg" {
+#   type = string
+#   default = "RG-AdminZone"
+# }
+# variable "keyvault_name" {
+#   type = string
+#   default = "keyvaultstan"
+# }
 
 variable "azure_region" {
   description = "Azure Region where to deploy resources. Caution the region must support Availability Zone"
   # To get names of Azure Region : az account list-locations
   # To check support of Availability Zone in the Azure Region see https://docs.microsoft.com/bs-latn-ba/azure/availability-zones/az-overview
   type    = string
-  default = "eastus2"
+  default = "eastus"
 }
 
 #
@@ -98,7 +98,7 @@ variable "windows_admin_username" {
 variable "kubernetes_version" {
   description = "Version of Kubernetes to deploy"
   type        = string
-  default     = "1.24.3"
+  default     = "1.24.6"
 }
 
 
@@ -121,7 +121,7 @@ variable "defaultpool-vmsize" {
   # check if the choosen size is available in Azure region you selected : az vm list-usage --location NAMEOFAZUREREGION -o table
   # az vm list-skus -l NAMEOFAZUREREGION
   type    = string
-  default = "Standard_D2s_v3"
+  default = "Standard_D2s_v5"
 }
 
 variable "defaultpool-ostype" {
@@ -193,7 +193,7 @@ variable "windowspool-nodecount" {
 variable "windowspool-vmsize" {
   description = "Number of node in a static AKS cluster or initial number if autoscaling. between 1 to 100"
   type        = string
-  default     = "Standard_D2s_v3"
+  default     = "Standard_D2s_v5"
 }
 
 variable "windowspool-ostype" {
@@ -256,14 +256,14 @@ variable "winpool-nodetaints" {
 
 variable "aks_vnet_name" {
     type = string
-    default = "aksvnet"
+    default = "aksvnetstan22"
 }
 
 
 # Variable to define the name of Log Analytics Workspace (used by Azure Monitor Logs)
 variable "LogsWorkspaceName" {
   type    = string
-  default = "AKS-LogsWorkspace"
+  default = "AKS-Logsstan"
 }
 
 # Variable to choose SKU 
