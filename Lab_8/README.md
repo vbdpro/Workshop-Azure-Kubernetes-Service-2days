@@ -24,7 +24,7 @@ az login
 
 az group create --name "RG-Lab8" --location "eastus2"
 
-az aks create -n "myCluster" -g "RG-Lab8" --network-plugin azure --location "eastus2"
+az aks create -n "myCluster" -g "RG-Lab8" --network-plugin azure --location "eastus2 --generate-ssh-keys -o jsonc"
 
 az aks get-credentials -n "myCluster" -g "RG-Lab8"
 ```
