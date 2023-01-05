@@ -91,7 +91,7 @@ az aks get-credentials \
   --name "AKS-Lab-5"
 ```
 
-Créez un fichier "acr-nginx.yml" (ex: `touch acr-ngnix.yml`)<br>
+Créez un fichier "acr-nginx.yml" (ex: `touch acr-nginx.yml`)<br>
 Copiez le contenu du fichier ci-dessous (vi ou nano ...)<br>
 ```
 ---
