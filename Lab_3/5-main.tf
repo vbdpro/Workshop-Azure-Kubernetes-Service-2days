@@ -293,7 +293,6 @@ resource "azurerm_kubernetes_cluster" "Terra_aks" {
 }
 
 # AKS Node Pool Linux
-#
 # AKS Agent node-pool cf. https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster_node_pool.html
 # resource "azurerm_kubernetes_cluster_node_pool" "Terra-AKS-NodePools" {
 #   kubernetes_cluster_id = azurerm_kubernetes_cluster.Terra_aks.id
