@@ -23,7 +23,7 @@ az login
 
 az group create --name "RG-Lab7" --location "eastus2"
 
-az aks create -n "myCluster" -g "RG-Lab7" --network-plugin azure --enable-addons azure-keyvault-secrets-provider --enable-managed-identity --location "eastus2"  
+az aks create -n "myCluster" -g "RG-Lab7" --network-plugin azure --enable-addons azure-keyvault-secrets-provider --enable-managed-identity --generate-ssh-keys --location "eastus2"  
 
 az aks get-credentials -n "myCluster" -g "RG-Lab7" 
 ```
