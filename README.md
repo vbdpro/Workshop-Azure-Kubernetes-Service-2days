@@ -44,6 +44,8 @@ Découverte de Kubernetes dans Azure avec des exercices pratiques
 - Autoscaling quelles options ? HPA, KEDA, VPA, Virtual Kubelet...
 - Conclusion - Tour de table
 
+<img width='800' src='./images/Workshop-aks-day-2.png'/>
+
 ## Pré requis - compétences
 - Connaissances basiques de Kubernetes : à minima regarder les vidéos suivantes : https://www.youtube.com/watch?v=Srsabd1J-KU et https://www.youtube.com/watch?v=we7prqhRRHA
 - Connaissances basiques d'Azure (RG, Azure CLI, RBAC, Service Principal)
